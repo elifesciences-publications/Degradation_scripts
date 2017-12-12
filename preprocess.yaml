@@ -1,0 +1,82 @@
+{% set MB_PREFIX = "mockinbird.stammp_modules" %}
+
+
+{% set ref_gen = "/usr/users/ssohrab/CLIP/Reference_genome" %}
+
+{% set star_index = ref_gen + "/STAR_generatedGenome" %}
+{% set bowtie_index = ref_gen + "/BowtieIndex/genome" %}
+
+{% set pileup = "/usr/users/ssohrab/CLIP/additional_files/RNAseq.mpileup" %}
+
+
+general:
+    adapter5prime: GTTCAGAGTTCTACAGTCCGACGATC
+    adapter3prime: TGGAATTCTCGGGTGCCAAGG
+    genomefasta: {{ ref_gen }}/WholeGenomeFasta/genome.fa
+    normalization_pileup: {{ pileup }}
+    rmTemp: no
+    n_threads: 3
+
+reads:
+    fx_Q33: yes
+    bc_5prime: 5
+    bc_3prime: 0
+    min_len: 20
+    reference_nucleotide: T
+    mutation_nucleotide: C
+
+pipeline:
+    - FastQCModule: &FASTQC_CFG
+        kmer_length: 7         # int: used in fastqc's kmer statistics
+        extra_flags: []        # list of additional flags
+        outdir_name: fastQC_raw
+
+    - UmiToolsExtractModule
+
+    - SkewerAdapterClippingModule:
+        extra_args:
+            - -k 1
+
+    - ClippyAdapterClippingModule:
+        clip_len: 10
+        clipped_5prime_bc: true
+
+    - BowtieMapModule:
+        genome_index: {{ bowtie_index }}
+        n_multimap: 1
+        n_mismatch: 1
+
+
+    - SortIndexModule:
+       keep_all: yes
+
+    - UmiToolsDedupModule
+
+    - BamPPModule:
+        remove_n_edge_mut: 1
+        plot_transition_profiles: yes
+        max_mut_per_read: 1
+        min_base_quality: 0
+        min_avg_ali_quality: 0
+        min_mismatch_quality: 20
+        dump_raw_data: no
+        outdir_name: bam_analysis
+
+    - SoftclipAnalysisModule:
+       outdir_name: bam_analysis
+
+    - SortIndexModule:
+       keep_all: yes
+
+    - PileupModule:
+       keep_all: yes
+
+    - BSFinderModule:
+        pval_threshold: 0.005
+        min_cov: 2
+
+    - NormalizationModule:
+        mut_snp_ratio: 0.75
+
+    - QuantileCapModule:
+        max_quantile: 0.95
