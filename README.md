@@ -9,7 +9,7 @@ RNA degradation pathways enable RNA processing, the regulation of RNA levels, an
 
 ### A guide on the scripts and notebooks based on the figures in our paper:
 
-Mockinbird config files:
+[Mockinbird](https://github.com/soedinglab/mockinbird) config files:
 
     preprocess.yaml
     postprocess.yaml
@@ -66,6 +66,7 @@ cooperation between factors from different complexes and pathways.
 **Figure 5—figure supplement 1.** Co-occupancy for 74 RNA processing factors.
 
     co_occupancy.py
+    co_occupancy.ipynb
 
 **Figure 5—figure supplement 2.** Co-localization coefficients for all 74 RNA
 processing factors.
@@ -73,6 +74,7 @@ processing factors.
 between 74 RNA processing factors.
 
     co_localization.py
+    co_localization.ipynb
     
 **Figure 6.** Binding preferences reveal a link between decapping-mediated
 degradation and translation.
